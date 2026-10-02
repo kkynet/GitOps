@@ -1,0 +1,35 @@
+version: '3'
+services:
+
+  mariadb-galera-node0:
+    container_name: mariadb-galera-node0
+    image: bitnamilegacy/mariadb-galera:12.0
+    restart: always
+    stdin_open: true
+    tty: true
+    mem_limit: "3G"
+    volumes:
+      - mariadb-data:/bitnami/mariadb
+      - mariadb-conf:/opt/bitnami
+#    mem_limit: "512M"
+    env_file:
+      - ./.env-sample
+    secrets:
+      - mariadb-root-sample
+    networks:
+      internal:
+        ipv4_address: 10.0.2.30
+    healthcheck:
+      test: ['CMD', '/opt/bitnami/scripts/mariadb-galera/healthcheck.sh']
+      interval: 15s
+      timeout: 5s
+      retries: 6
+
+secrets:
+  mariadb-root-sample:
+    file: ./mariadb-root-sample
+
+networks:
+  internal:
+    external:
+          name: internal.60

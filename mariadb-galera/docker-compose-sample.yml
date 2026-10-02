@@ -9,8 +9,8 @@ services:
     tty: true
     mem_limit: "3G"
     volumes:
-      - mariadb-data:/bitnami/mariadb
-      - mariadb-conf:/opt/bitnami
+      - ./mariadb-galera-data:/bitnami/mariadb
+      - ./mariadb-galera-conf:/opt/bitnami
 #    mem_limit: "512M"
     env_file:
       - ./.env-sample

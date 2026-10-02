@@ -1,0 +1,121 @@
+version: "3"
+services:
+
+    powerdns-mysql:
+        container_name: powerdns-mysql
+        image: bitnami/mariadb-galera:12.0
+        restart: always
+        stdin_open: true
+        tty: true
+        mem_limit: "2G"
+        volumes:
+          - powerdns-mysql:/bitnami/mariadb
+          - powerdns-mysql:/opt/bitnami
+        env_file:
+          - ./.env-sample
+        secrets:
+          - mariadb-root-sample
+          - powerdns-user-sample
+          - powerdns-pass-sample
+        networks:
+           internal:
+              ipv4_address: 10.0.2.49
+        healthcheck:
+          test: ['CMD', '/opt/bitnami/scripts/mariadb-galera/healthcheck.sh']
+          interval: 15s
+          timeout: 5s
+          retries: 6
+
+    powerdns-auth:
+        container_name: powerdns-auth
+        image: pschiffe/pdns-mysql:latest
+        hostname: ns.domain.com
+        restart: always
+        stdin_open: true
+        tty: true
+        env_file:
+          - ./.env-powerdns-auth-sample
+        mem_limit: "2G"
+        networks:
+          nat:
+            ipv4_address: 10.0.5.26
+          internal:
+            ipv4_address: 10.0.2.50
+        ports:
+          - "53:53"
+          - "53:53/udp"
+
+    powerdnsadmin-mysql:
+        container_name: powerdnsadmin-mysql
+        image: bitnami/mariadb-galera:12.0
+        restart: always
+        stdin_open: true
+        tty: true
+        mem_limit: "2G"
+        env_file:
+          - ./.env-powerdnsadmin-mysql-sample
+        volumes:
+          - powerdnsadmin-mysql:/bitnami/mariadb
+          - powerdnsadmin-mysql:/opt/bitnami
+        secrets:
+          - mariadb-root-powerdnsadmin-sample
+          - powerdnsadmin-user-sample
+          - powerdnsadmin-pass-sample
+        networks:
+           internal:
+              ipv4_address: 10.0.2.51
+        healthcheck:
+          test: ['CMD', '/opt/bitnami/scripts/mariadb-galera/healthcheck.sh']
+          interval: 15s
+          timeout: 5s
+          retries: 6
+
+    powerdnsadmin:
+        container_name: powerdnsadmin
+        image: powerdnsadmin/pda-legacy:latest
+        restart: always
+        stdin_open: true
+        tty: true
+        mem_limit: "2G"
+        env_file:
+          - ./.env-powerdnsadmin-sample
+        secrets:
+          - db_uri-sample
+          - key_secret-sample
+        networks:
+          nat:
+            ipv4_address: 10.0.5.27
+          internal:
+            ipv4_address: 10.0.2.52
+        labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.powerdnsadmin.rule=Host(`dns-panel.domain.com`)"
+          - "traefik.http.routers.powerdnsadmin.entrypoints=https"
+          - "traefik.http.routers.powerdnsadmin.tls=true"
+          - "traefik.http.services.powerdnsadmin.loadbalancer.server.port=80"
+
+secrets:
+  mariadb-root-sample:
+    file: ./mariadb-root-sample
+  powerdns-user-sample:
+    file: ./powerdns-user-sample
+  powerdns-pass-sample:
+    file: ./powerdns-pass-sample
+  mariadb-root-powerdnsadmin-sample:
+    file: ./mariadb-root-powerdnsadmin-sample
+  powerdnsadmin-user-sample-sample:
+    file: ./powerdnsadmin-user-sample
+  powerdnsadmin-pass-sample:
+    file: ./powerdnsadmin-pass-sample
+  db_uri-sample:
+    file: ./db_uri-sample
+  key_secret-sample:
+    file: ./key_secret-sample
+
+networks:
+    nat:
+      external:
+            name: nat
+    internal:
+      external:
+            name: internal.60

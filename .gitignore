@@ -1,0 +1,47 @@
+aapanel/
+coolify/
+discourse-dev/
+discourse-gemini/
+ispconfig3/
+
+#GLOBAL
+docker-compose.yml
+.dockerignore
+.env
+mariadb-root
+
+#FOSSBILLING
+fossbilling-pass
+fossbilling-user
+
+#DISCOURSE
+.env-discourse-app
+
+#DOVECOT mailserver/dovecot
+dovecot-mysql.conf
+
+#MAILMAN3 mailserver/mailman
+.env-mailman-core
+.env-mailman-web
+mailman-pass
+mailman-user
+
+#MAILMAN3 mailserver/roundcube
+.env-roundcube
+roundcube_db_user
+
+#POWERDNS
+.env-powerdns-auth
+db_uri
+key_secret
+powerdns-pass
+powerdns-user
+
+.env-powerdnsadmin
+.env-powerdnsadmin-mysql
+powerdnsadmin-pass
+powerdnsadmin-user
+mariadb-root-powerdnsadmin
+
+#TRAEFIK
+rfc2136_tsig_secret.txt

@@ -1,0 +1,87 @@
+version: "3"
+services:
+
+    traefik:
+        container_name: traefik
+        image: traefik:latest
+        restart: always
+        stdin_open: true
+        tty: true
+        mem_limit: "512M"
+        volumes:
+          - /etc/localtime:/etc/localtime:ro
+          - /run/docker.sock:/run/docker.sock:ro
+          - ./traefik.yaml:/etc/traefik/traefik.yaml:ro
+          - ./acme/acme.json:/acme.json
+          - ./acme/acme-coolify.json:/acme-coolify.json
+        environment:
+          RFC2136_NAMESERVER: 10.0.5.26:53
+          RFC2136_TSIG_ALGORITHM: hmac-sha512
+          RFC2136_TSIG_KEY: keyname
+          RFC2136_TSIG_SECRET_FILE: /run/secrets/rfc2136_tsig_secret-sample
+          TRAEFIK_DASHBOARD_CREDENTIALS: ${TRAEFIK_DASHBOARD_CREDENTIALS}
+        env_file: .env-sample
+        labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.traefik.entrypoints=http"
+          - "traefik.http.routers.traefik.rule=Host(`traefik.domain.com`)"
+          - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_DASHBOARD_CREDENTIALS}"
+          - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
+          - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
+          - "traefik.http.routers.traefik.middlewares=traefik-https-redirect"
+          - "traefik.http.routers.traefik-secure.entrypoints=https"
+          - "traefik.http.routers.traefik-secure.rule=Host(`traefik.domain.com`)"
+          - "traefik.http.routers.traefik-secure.middlewares=traefik-auth"
+          - "traefik.http.routers.traefik-secure.tls=true"
+          - "traefik.http.routers.traefik-secure.tls.certresolver=rfc2136"
+          - "traefik.http.routers.traefik-secure.tls.domains[0].main=domain.com"
+          - "traefik.http.routers.traefik-secure.tls.domains[0].sans=*.domain.com"
+          - "traefik.http.routers.traefik-secure.service=api@internal"
+        secrets:
+          - rfc2136_tsig_secret-sample
+        networks:
+          nat:
+            ipv4_address: 10.0.5.9
+          internal:
+            ipv4_address: 10.0.2.29
+          paas:
+            ipv4_address: 172.20.0.2
+        ports:
+          - 80:80
+          - 443:443
+        extra_hosts:
+          - "traefik.domain.com:10.0.5.9"
+
+    treafik-certs-dumper:
+        container_name: treafik-certs-dumper
+        image: ldez/traefik-certs-dumper:latest
+        restart: always
+        stdin_open: true
+        tty: true
+        mem_limit: "512M"
+        entrypoint: sh -c '
+          while ! [ -e /data/acme.json ]
+          || ! [ `jq ".[] | .Certificates | length" /data/acme.json | jq -s "add" ` != 0 ]; do
+          sleep 1
+          ; done
+          && traefik-certs-dumper file --version v2 --watch
+          --source /data/acme.json --dest /data/certs'
+        volumes:
+          - ./acme/acme.json:/data/acme.json
+          - ./letsencrypt/:/data
+        network_mode: "none"
+
+secrets:
+    rfc2136_tsig_secret-sample:
+      file: ./rfc2136_tsig_secret-sample.txt
+
+networks:
+    nat:
+      external:
+            name: nat
+    internal:
+      external:
+            name: internal.60
+    paas:
+      external:
+            name: coolify

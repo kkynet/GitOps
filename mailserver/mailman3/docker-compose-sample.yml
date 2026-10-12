@@ -9,8 +9,8 @@ services:
         tty: true
         mem_limit: "2G"
         volumes:
-          - /home/administrator/docker/tamvan/vol/mailserver/mailman3/db/data:/bitnami/mariadb
-          - /home/administrator/docker/tamvan/vol/mailserver/mailman3/db/conf:/opt/bitnami
+          - ./mailman3-data/db/data:/bitnami/mariadb
+          - ./mailman3-data/db/conf:/opt/bitnami
         env_file:
           - ./.env
         secrets:
@@ -37,7 +37,7 @@ services:
           - ./.env-mailman-core-sample
         mem_limit: "2G"
         volumes:
-          - /home/administrator/docker/tamvan/vol/mailserver/mailman3/core:/opt/mailman/
+          - ./mailman3-data/core:/opt/mailman/
         networks:
           nat:
             ipv4_address: 10.0.5.16
@@ -57,7 +57,7 @@ services:
           - ./.env-mailman-web-sample
         mem_limit: "2G"
         volumes:
-          - /home/administrator/docker/tamvan/vol/mailserver/mailman3/web:/opt/
+          - ./mailman3-data/web:/opt/
         networks:
           nat:
             ipv4_address: 10.0.5.17
@@ -77,8 +77,8 @@ services:
           - ./.env-mailman-web-sample
         mem_limit: "2G"
         volumes:
-          - /home/administrator/docker/tamvan/vol/mailserver/mailman3/web:/opt/mailman/web
-          - /home/administrator/docker/tamvan/vol/mailserver/mailman3/nginx/nginx-mailman.conf:/etc/nginx/conf.d/default.conf
+          - ./mailman3-data/web:/opt/mailman/web
+          - ./mailman3-data/nginx/nginx-mailman.conf:/etc/nginx/conf.d/default.conf
         labels:
           - "traefik.enable=true"
           - "traefik.http.routers.mailmanwebnginx.rule=Host(`lists.domain.com`)"
@@ -107,4 +107,3 @@ networks:
     internal:
       external:
             name: internal.60
-

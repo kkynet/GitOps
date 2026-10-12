@@ -1,0 +1,3 @@
+# Redis for RSPAMD
+
+README WIP

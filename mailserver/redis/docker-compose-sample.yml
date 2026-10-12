@@ -1,0 +1,26 @@
+version: "3"
+services:
+
+    mailserver-redis:
+        container_name: mailserver-redis
+        image: redis:alpine
+        restart: always
+        stdin_open: true
+        tty: true
+        mem_limit: "512M"
+        volumes:
+          - ./redis-data/data:/data
+        networks:
+          nat:
+            ipv4_address: 10.0.5.11
+          internal:
+            ipv4_address: 10.0.2.32
+
+networks:
+    nat:
+      external:
+            name: nat
+    internal:
+      external:
+            name: internal.60
+

@@ -1,0 +1,9 @@
+passdb {
+  driver = sql
+  args = /etc/dovecot/mysql/dovecot-mysql.conf
+}
+
+userdb {
+  driver = sql
+  args = /etc/dovecot/mysql/dovecot-mysql.conf
+}

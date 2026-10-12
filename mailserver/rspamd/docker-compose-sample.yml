@@ -1,0 +1,43 @@
+version: "3"
+services:
+
+    mailserver-rspamd:
+        container_name: mailserver-rspamd
+        image: rspamd/rspamd:latest
+        restart: always
+        stdin_open: true
+        tty: true
+        mem_limit: "2G"
+        volumes:
+          - ./config:/etc/rspamd/local.d
+          - ./data:/var/lib/rspamd
+          - ./logs:/var/log/rspamd
+        labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.rspamd.rule=Host(`domain.com`) && PathPrefix(`/rspamd`)"
+          - "traefik.http.routers.rspamd.entrypoints=https"
+          - "traefik.http.routers.rspamd.tls=true"
+          - "traefik.http.services.rspamd.loadbalancer.server.port=11334"
+
+          - "traefik.http.middlewares.rspamd-slash.redirectregex.regex=^(https?://[^/]+/rspamd)$$"
+          - "traefik.http.middlewares.rspamd-slash.redirectregex.replacement=$${1}/"
+          - "traefik.http.middlewares.rspamd-slash.redirectregex.permanent=true"
+
+          - "traefik.http.middlewares.rspamd-strip.stripprefix.prefixes=/rspamd"
+          - "traefik.http.routers.rspamd.middlewares=rspamd-slash@docker,rspamd-strip@docker"
+        networks:
+          nat:
+            ipv4_address: 10.0.5.12
+          internal:
+            ipv4_address: 10.0.2.33
+        ports:
+          - 11332:11332
+          - 11334:11334
+
+networks:
+    nat:
+      external:
+            name: nat
+    internal:
+      external:
+            name: internal.60

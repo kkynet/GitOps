@@ -1,0 +1,25 @@
+version: "3"
+services:
+
+    mailserver-unbound:
+        container_name: mailserver-unbound
+        image: mvance/unbound:latest
+        restart: always
+        stdin_open: true
+        tty: true
+        mem_limit: "512M"
+        volumes:
+          - ./unbound-data:/opt/unbound/etc/unbound
+        networks:
+          nat:
+            ipv4_address: 10.0.5.10
+          internal:
+            ipv4_address: 10.0.2.31
+
+networks:
+    nat:
+      external:
+            name: nat
+    internal:
+      external:
+            name: internal.60

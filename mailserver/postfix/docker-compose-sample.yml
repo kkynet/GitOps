@@ -1,0 +1,34 @@
+version: "3"
+services:
+
+    mailserver-postfix:
+        container_name: mailserver-postfix
+        image: mailserver-postfix:latest
+        hostname: mx0.domain.com
+        restart: always
+        stdin_open: true
+        tty: true
+        env_file: .env
+        mem_limit: "512M"
+        volumes:
+          - ./postfix-data:/etc/postfix
+          - ../../traefik/letsencrypt/certs:/etc/letsencrypt
+          - ./postfix-spool-private:/var/spool/postfix/private
+          - ../mailman3/core:/opt/mailman/
+        networks:
+          nat:
+            ipv4_address: 10.0.5.13
+          internal:
+            ipv4_address: 10.0.2.34
+        ports:
+          - 25:25
+          - 465:465
+          - 587:587
+
+networks:
+    nat:
+      external:
+            name: nat
+    internal:
+      external:
+            name: internal.60

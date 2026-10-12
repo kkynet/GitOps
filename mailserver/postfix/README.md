@@ -1,0 +1,5 @@
+# MAILSERVER/POSTFIX
+
+MTA (SMTP) menggunakan Postfix
+
+README WIP

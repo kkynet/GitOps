@@ -56,3 +56,9 @@ mysqlpass
 mysqluser
 nextcloud_adm_pass
 nextcloud_adm_user
+
+#Vikunja
+vikunja-user
+vikunja-pass
+vikunja/agent/
+vikunja/bridge/

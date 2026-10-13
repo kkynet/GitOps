@@ -1,0 +1,34 @@
+version: "3"
+services: 
+
+    unifi:
+        container_name: unifi
+        image: unifi:latest
+        restart: always
+        stdin_open: true
+        tty: true
+        networks:
+          nat:
+            ipv4_address: 10.0.5.5
+          internal:
+            ipv4_address: 10.0.2.22
+        env_file: 
+            - ./.env-sample
+        ports:
+            - 8443:8443
+            - 3478:3478/udp
+            - 10001:10001/udp
+            - 8080:8080
+        cap_add:
+            - NET_ADMIN
+        volumes:
+            - ./config:/config
+            - ./init:/init
+
+networks: 
+    nat:
+        external: 
+            name: nat
+    internal:
+        external:
+            name: internal.ipvlanl3_60

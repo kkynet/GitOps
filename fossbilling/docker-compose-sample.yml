@@ -1,0 +1,62 @@
+version: "3"
+services:
+
+    fossbilling-mysql:
+        container_name: fossbilling-mysql
+        image: bitnamilegacy/mariadb-galera:12.0
+        restart: always
+        stdin_open: true
+        tty: true
+        env_file:
+          - ./.env-sample
+        volumes:
+         - ./db/data:/bitnami/mariadb
+         - ./db/conf:/opt/bitnami
+        secrets:
+          - mariadb-root-sample
+          - fossbilling-user-sample
+          - fossbilling-pass-sample
+        networks:
+          internal:
+            ipv4_address: 10.0.2.55
+        healthcheck:
+          test: ['CMD', '/opt/bitnami/scripts/mariadb-galera/healthcheck.sh']
+          interval: 15s
+          timeout: 5s
+          retries: 6
+
+    fossbilling:
+        container_name: fossbilling
+        image: fossbilling/fossbilling:latest
+        restart: always
+        stdin_open: true
+        tty: true
+        volumes:
+          - ./data/html:/var/www/html
+        labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.fossbilling.rule=Host(`panel.domain.com`)"
+          - "traefik.http.routers.fossbilling.entrypoints=https"
+          - "traefik.http.routers.fossbilling.tls=true"
+          - "traefik.http.services.fossbilling.loadbalancer.server.port=80"
+        networks:
+           nat:
+              ipv4_address: 10.0.5.30
+           internal:
+              ipv4_address: 10.0.2.56
+
+secrets:
+  mariadb-root-sample:
+    file: ./mariadb-root-sample
+  fossbilling-user-sample:
+    file: ./fossbilling-user-sample
+  fossbilling-pass-sample:
+    file: ./fossbilling-pass-sample
+
+networks:
+    nat:
+        external:
+            name: nat
+    internal:
+        external:
+            name: internal.60

@@ -1,0 +1,68 @@
+version: "3"
+services: 
+
+    nextcloud:
+        container_name: nextcloud
+        image: nextcloud-app:latest
+        restart: always
+        stdin_open: true
+        tty: true
+        cap_add:
+          - NET_ADMIN
+        env_file:
+          - ./.env-sample
+        networks:
+          nat:
+            ipv4_address: 10.0.5.3
+          internal:
+            ipv4_address: 10.0.2.14
+        volumes:
+         - ./data:/var/www/html
+         - ./nextcloud-apache:/etc/apache2
+        secrets:
+            - mysqluser-sample
+            - mysqlpass-sample
+            - nextcloud_adm_user-sample
+            - nextcloud_adm_pass-sample
+
+    nextcloud-cron:
+       container_name: nextcloud-cron
+       image: nextcloud:apache
+       restart: always
+       volumes:
+         - ./data:/var/www/html
+       entrypoint: /cron.sh
+       networks:
+         internal:
+           ipv4_address: 10.0.2.16
+
+    nextcloud-redis:
+       container_name: nextcloud-redis
+       image: redis:alpine
+       stdin_open: true
+       tty: true
+       entrypoint: redis-server /usr/local/etc/redis/redis.conf
+       volumes:
+         - ./nextcloud-redis/redis.conf:/usr/local/etc/redis/redis.conf
+         - ./nextcloud-redis/data:/data
+       networks:
+         internal:
+           ipv4_address: 10.0.2.17
+
+secrets:
+  mysqluser-sample:
+    file: ./mysqluser-sample
+  mysqlpass-sample:
+    file: ./mysqlpass-sample
+  nextcloud_adm_user-sample:
+    file: ./nextcloud_adm_user-sample
+  nextcloud_adm_pass-sample:
+    file: ./nextcloud_adm_pass-sample
+
+networks: 
+    internal:
+        external:
+            name: internal.ipvlanl3_60
+    nat:
+        external:
+            name: nat

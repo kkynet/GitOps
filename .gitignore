@@ -50,3 +50,9 @@ rfc2136_tsig_secret.txt
 .env-mysql
 glpi-user
 glpi-pass
+
+#Nextcloud
+mysqlpass
+mysqluser
+nextcloud_adm_pass
+nextcloud_adm_user

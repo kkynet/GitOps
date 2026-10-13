@@ -1,0 +1,74 @@
+version: "3"
+services: 
+
+    db-pterodactyl:
+        container_name: db-pterodactyl
+        image: mariadb:10.5
+        restart: always
+        stdin_open: true
+        tty: true
+        command: --default-authentication-plugin=mysql_native_password
+        mem_limit: "512M"
+        networks:
+          internal:
+            ipv4_address: 10.0.2.24
+        env_file: 
+          - ./.env-sample
+        volumes:
+         - ./db:/var/lib/mysql
+         - ./mariadb.conf.d:/etc/mysql/mariadb.conf.d
+
+    redis-pterodactyl:
+        container_name: redis-pterodactyl
+        image: redis:alpine
+        restart: always
+        stdin_open: true
+        tty: true
+        mem_limit: "512M"
+        volumes:
+          - ./redis:/data
+        networks:
+          internal:
+            ipv4_address: 10.0.2.25
+
+    panel-pterodactyl:
+        container_name: panel-pterodactyl
+        image: ghcr.io/pterodactyl/panel:latest
+        restart: always
+        stdin_open: true
+        tty: true
+        env_file:
+          - ./.env-sample
+        mem_limit: "1G"
+        ports:
+          - 8081:80
+          - 4443:443
+#          - 8082:8082
+          - 8083:8083
+          - 2269:2269
+#        volumes:
+#          - ./panel:/app/var
+#          - ./nginx:/etc/nginx/http.d
+#          - ./certs:/etc/letsencrypt
+#          - ./logs:/app/storage/logs
+#        labels:
+#          - "traefik.enable=true"
+#          - "traefik.http.routers.pterodactyl.rule=Host(`pterodactyl.domain.com`)"
+#          - "traefik.http.routers.pterodactyl.entrypoints=https"
+#          - "traefik.http.routers.pterodactyl.tls=true"
+#          - "traefik.http.services.pterodactyl.loadbalancer.server.port=80"
+
+        networks:
+          nat:
+            ipv4_address: 10.0.5.6
+          internal:
+            ipv4_address: 10.0.2.26
+
+        
+networks: 
+    nat:
+      external: 
+            name: nat
+    internal:
+      external:
+            name: internal.60

@@ -1,0 +1,42 @@
+version: "3"
+services: 
+
+    wings-pterodactyl:
+         container_name: wings-pterodactyl
+         image: ghcr.io/pterodactyl/wings:latest
+         restart: always
+         stdin_open: true
+         tty: true
+         mem_limit: "8192M"
+         env_file:
+           - ./.env-sample
+         ports:
+           - 8080:8080
+           - 2069:2022
+           - 445:443
+         volumes:
+           - /var/run/docker.sock:/var/run/docker.sock
+           - /var/lib/docker/containers/:/var/lib/docker/containers/
+           - ./wings/etc:/etc/pterodactyl/
+           - /var/lib/pterodactyl/:/var/lib/pterodactyl/
+           - /var/log/pterodactyl/:/var/log/pterodactyl/
+           - ./pterodactyl-tmp:/tmp/pterodactyl/
+         networks:
+           wings0:
+             ipv4_address: 172.21.0.2
+           nat:
+             ipv4_address: 10.0.5.7
+           internal:
+             ipv4_address: 10.0.2.27
+
+        
+networks: 
+    nat:
+      external: 
+            name: nat
+    wings0:
+      external:
+            name: wings0
+    internal:
+      external:
+            name: internal.60

@@ -1,0 +1,36 @@
+version: "3"
+services:
+
+    discourse-app:
+        container_name: discourse-app
+        image: local_discourse/web_only:latest
+        restart: always
+        stdin_open: true
+        tty: true
+        mem_limit: "4G"
+        env_file:
+          - ./.env-discourse-app-sample
+        volumes:
+          - ./shared/web-only:/shared
+          - ./shared/log/var-log:/var/log
+        command: /sbin/boot
+        labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.discourse-app.rule=Host(`forum.domain.com`)"
+          - "traefik.http.routers.discourse-app.entrypoints=https"
+          - "traefik.http.routers.discourse-app.tls=true"
+          - "traefik.http.services.discourse-app.loadbalancer.server.port=80"
+
+        networks:
+          nat:
+            ipv4_address: 10.0.5.21
+          internal:
+            ipv4_address: 10.0.2.44
+
+networks:
+    nat:
+      external:
+            name: nat
+    internal:
+      external:
+            name: internal.60

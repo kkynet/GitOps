@@ -1,0 +1,15 @@
+//
+// Do any local configuration here
+//
+
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+zone "trustpositifkominfo" {
+    type slave;
+    file "db.trustpositifkominfo";
+    masters { 103.154.123.130;
+              139.255.196.202;
+    };
+    allow-query { any; };
+};

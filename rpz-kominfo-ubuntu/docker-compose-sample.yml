@@ -1,0 +1,27 @@
+version: "3"
+services: 
+
+   dns-rpz:
+       container_name: dns-rpz
+       image: ubuntu/bind9:latest
+       restart: always
+       stdin_open: true
+       tty: true
+       env_file:
+         - ./.env-sample
+       volumes:
+         - ./bind-data/named.conf.options:/etc/bind/named.conf.options
+         - ./bind-data/named.conf.local:/etc/bind/named.conf.local
+       networks:
+         nat:
+           ipv4_address: 10.0.5.5
+         internal:
+           ipv4_address: 10.0.2.23
+
+networks: 
+    nat:
+        external: 
+            name: nat
+    internal:
+        external:
+            name: internal.ipvlanl3_60

@@ -1,0 +1,27 @@
+version: "3"
+services: 
+
+    transmission:
+        container_name: transmission
+        image: linuxserver/transmission:latest
+        restart: always
+        stdin_open: true
+        tty: true
+        env_file: 
+            - ./.env-sample
+        volumes:
+         - ./config:/config
+         - ./downloads:/downloads
+         - ./watch:/watch
+        ports:
+          - 9091:9091
+          - 51413:51413
+          - 51413:51413/udp
+        networks:
+          nat:
+            ipv4_address: 10.0.5.8
+
+networks: 
+    nat:
+        external:
+            name: nat

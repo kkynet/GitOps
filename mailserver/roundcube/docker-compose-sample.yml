@@ -1,0 +1,69 @@
+version: "3"
+services:
+
+    mailserver-roundcube-db:
+        container_name: mailserver-roundcube-db
+        image: bitnamilegacy/mariadb-galera:12.0
+        restart: always
+        stdin_open: true
+        tty: true
+        mem_limit: "1G"
+        volumes:
+          - ./roundcube-data/db/data:/bitnami/mariadb
+          - ./roundcube-data/db/conf:/opt/bitnami
+        env_file:
+          - ./.env-sample
+        secrets:
+          - mariadb-root-sample
+        networks:
+           internal:
+              ipv4_address: 10.0.2.37
+        healthcheck:
+          test: ['CMD', '/opt/bitnami/scripts/mariadb-galera/healthcheck.sh']
+          interval: 15s
+          timeout: 5s
+          retries: 6
+
+    mailserver-roundcube:
+        container_name: mailserver-roundcube
+        image: roundcube/roundcubemail:latest
+        restart: always
+        stdin_open: true
+        tty: true
+        mem_limit: "512M"
+        env_file:
+          - ./.env-roundcube-sample
+        volumes:
+          - ./roundcube-data/html:/var/www/html
+          - ./roundcube-data/config:/var/roundcube/config
+          - ./roundcube-data/tmp:/tmp/roundcube-temp
+        labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.roundcube.rule=Host(`webmail.domain.com`)"
+          - "traefik.http.routers.roundcube.entrypoints=https"
+          - "traefik.http.routers.roundcube.tls=true"
+          - "traefik.http.services.roundcube.loadbalancer.server.port=80"
+        secrets:
+          - roundcube_db_user-sample
+          - roundcube_db_password-sample
+        networks:
+          nat:
+            ipv4_address: 10.0.5.15
+          internal:
+            ipv4_address: 10.0.2.36
+
+secrets:
+  mariadb-root-sample:
+    file: ./mariadb-root-sample
+  roundcube_db_user-sample:
+    file: ./roundcube_db_user-sample
+  roundcube_db_password-sample:
+    file: ./mariadb-root-sample
+
+networks:
+    nat:
+      external:
+            name: nat
+    internal:
+      external:
+            name: internal.60

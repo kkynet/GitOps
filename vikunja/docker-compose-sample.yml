@@ -1,0 +1,65 @@
+version: "3"
+services: 
+
+    vikunja-kanban-mysql:
+        container_name: vikunja-kanban-mysql
+        image: bitnamilegacy/mariadb-galera:12.0
+        restart: always
+        stdin_open: true
+        tty: true
+        volumes:
+          - ./db/data:/bitnami/mariadb
+          - ./db/conf:/opt/bitnami
+        env_file:
+          - ./.env-mysql-sample
+        secrets:
+          - mariadb-root-sample
+          - vikunja-user-sample
+          - vikunja-pass-sample
+        networks:
+          internal:
+             ipv4_address: 10.0.2.29
+        healthcheck:
+          test: ['CMD', '/opt/bitnami/scripts/mariadb-galera/healthcheck.sh']
+          interval: 15s
+          timeout: 5s
+          retries: 6
+
+    vikunja-kanban:
+        container_name: vikunja-kanban
+        image: vikunja/vikunja:latest
+        restart: always
+        env_file:
+          - ./.env-sample
+        stdin_open: true
+        tty: true
+        volumes:
+          - ./panel/files:/app/vikunja/files
+          - ./panel/db:/db
+        secrets:
+          - vikunja-user-sample
+          - vikunja-pass-sample
+        networks:
+          internal:
+            ipv4_address: 10.0.2.30
+          nat:
+            ipv4_address: 10.0.5.12
+        ports:
+          - 3456:3456
+
+secrets:
+  mariadb-root-sample:
+    file: ./mariadb-root-sample
+  vikunja-user-sample:
+    file: ./vikunja-user-sample
+  vikunja-pass-sample:
+    file: ./vikunja-pass-sample
+
+
+networks: 
+    internal:
+        external: 
+            name: internal.ipvlanl3_60
+    nat:
+        external:
+            name: nat

@@ -1,0 +1,31 @@
+version: "3"
+services:
+
+    crowdsec:
+        container_name: crowdsec
+        image: crowdsecurity/crowdsec:latest
+        restart: always
+        env_file:
+          - ./.env-sample
+        stdin_open: true
+        tty: true
+        mem_limit: "1G"
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock:ro
+          - ./db:/var/lib/crowdsec/data
+          - ./config:/etc/crowdsec
+        ports:
+          - 127.0.0.1:8084:8084
+        networks:
+          nat:
+            ipv4_address: 10.0.5.25
+          internal:
+            ipv4_address: 10.0.2.48
+
+networks:
+    nat:
+        external:
+            name: nat
+    internal:
+        external:
+            name: internal.60

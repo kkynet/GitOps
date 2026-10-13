@@ -1,0 +1,83 @@
+version: "3"
+services: 
+
+    zabbix-server:
+        container_name: zabbix-server
+        image: zabbix/zabbix-server-mysql
+        restart: always
+        env_file: 
+            - ./.env-sample
+        secrets:
+            - mysqluser-sample
+            - mysqlpass-sample
+        cap_add:
+          - NET_ADMIN
+        volumes: 
+            - ./server/usr/lib/zabbix/alertscripts:/usr/lib/zabbix/alertscripts
+            - ./server/var/lib/zabbix/modules:/var/lib/zabbix/modules
+            - ./server/usr/lib/zabbix/externalscripts:/usr/lib/zabbix/externalscripts
+            - ./server/var/lib/zabbix/mibs:/var/lib/zabbix/mibs
+            - ./server/var/lib/zabbix/export:/var/lib/zabbix/export
+            - ./server/etc/zabbix/zabbix_agent.d:/etc/zabbix/zabbix_agentd.d
+            - ./server/var/lib/zabbix/snmptraps:/var/lib/zabbix/snmptraps
+        networks:
+          nat:
+            ipv4_address: 10.0.5.6
+          internal:
+            ipv4_address: 10.0.2.4
+        
+    zabbix-frontend:
+        container_name: zabbix-frontend
+        image: zabbix/zabbix-web-apache-mysql
+        restart: always
+        env_file: 
+            - ./.env-sample
+        volumes:
+            - ./frontend/zabbix:/etc/zabbix/
+            - ./frontend/zabbix:/usr/share/zabbix
+        secrets:
+            - mysqluser-sample
+            - mysqlpass-sample
+        networks:
+          nat:
+            ipv4_address: 10.0.5.7
+          internal:
+            ipv4_address: 10.0.2.5
+
+    zabbix-agent:
+        container_name: zabbix-agent
+        image: zabbix/zabbix-agent
+        restart: always
+        env_file: 
+            - ./.env-sample
+        volumes: 
+            - ./zabbix_agent.d:/etc/zabbix/zabbix_agentd.d
+            - ./modules:/var/lib/zabbix/modules
+        networks:
+          internal:
+            ipv4_address: 10.0.2.6
+    
+    zabbix-snmptraps:
+        container_name: zabbix-snmptraps
+        image: zabbix/zabbix-snmptraps
+        restart: always
+        volumes:
+           - ./mibs:/var/lib/zabbix/mibs
+           - ./snmptraps:/var/lib/zabbix/snmptraps
+        networks:
+          internal:
+            ipv4_address: 10.0.2.7
+
+secrets:
+    mysqluser-sample:
+        file: ./mysqluser-sample
+    mysqlpass-sample:
+        file: ./mysqlpass-sample
+  
+networks:
+    nat:
+        external: 
+            name: nat
+    internal:
+        external:
+            name: internal.ipvlanl3_60

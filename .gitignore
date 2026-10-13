@@ -45,3 +45,8 @@ mariadb-root-powerdnsadmin
 
 #TRAEFIK
 rfc2136_tsig_secret.txt
+
+#GLPI
+.env-mysql
+glpi-user
+glpi-pass

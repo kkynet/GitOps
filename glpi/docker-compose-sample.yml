@@ -1,0 +1,59 @@
+version: "3"
+services: 
+
+    glpi-mysql:
+        container_name: glpi-mysql
+        image: bitnamilegacy/mariadb-galera:12.0
+        restart: always
+        stdin_open: true
+        tty: true
+        env_file:
+          - ./.env-mysql-sample
+        volumes:
+         - ./glpi-mysql/data:/bitnami/mariadb
+         - ./glpi-mysql/conf:/opt/bitnami
+        secrets:
+          - mariadb-root-sample
+          - glpi-user-sample
+          - glpi-pass-sample
+        networks:
+          internal:
+            ipv4_address: 10.0.2.32
+        healthcheck:
+          test: ['CMD', '/opt/bitnami/scripts/mariadb-galera/healthcheck.sh']
+          interval: 15s
+          timeout: 5s
+          retries: 6
+
+    glpi-dashboard:
+       container_name: glpi-dashboard
+       image: diouxx/glpi:latest
+       restart: always
+       hostname: glpi
+       stdin_open: true
+       tty: true
+       volumes:
+         - /etc/timezone:/etc/timezone:ro
+         - /etc/localtime:/etc/localtime:ro
+         - ./glpi/data:/var/www/html/glpi
+       networks:
+         external:
+           ipv4_address: 10.0.5.2
+         internal:
+           ipv4_address: 10.0.2.19
+
+secrets:
+  mariadb-root-sample:
+    file: ./mariadb-root-sample
+  glpi-user-sample:
+    file: ./glpi-user-sample
+  glpi-pass-sample:
+    file: ./glpi-pass-sample
+
+networks: 
+    nat:
+        external: 
+            name: nat
+    internal:
+        external:
+            name: internal.ipvlanl3_60

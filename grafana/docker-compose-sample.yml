@@ -1,0 +1,70 @@
+version: "3"
+services:
+
+    grafana-dashboard:
+        container_name: grafana-dashboard
+        image: grafana/grafana:latest
+        restart: always
+        mem_limit: "1G"
+        env_file:
+          - ./.env-sample
+        stdin_open: true
+        tty: true
+        volumes:
+          - ./dashboard/usr:/usr/share/grafana
+          - ./dashboard/var:/var/lib/grafana
+        labels:
+          - "traefik.enable=true"
+          - "traefik.http.routers.grafana.rule=Host(`domain.com`) && PathPrefix(`/grafana`)"
+          - "traefik.http.routers.grafana.entrypoints=https"
+          - "traefik.http.routers.grafana.tls=true"
+          - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+        networks:
+          nat:
+            ipv4_address: 10.0.5.24
+          internal:
+            ipv4_address: 10.0.2.45
+
+    grafana-alloy:
+        container_name: grafana-alloy
+        image: grafana/alloy:latest
+        restart: always
+        stdin_open: true
+        tty: true
+        mem_limit: "1G"
+        volumes:
+          - ./alloy/config.alloy:/etc/alloy/config.alloy
+          - /var/run/docker.sock:/var/run/docker.sock:ro
+          - ./alloy/data:/var/lib/alloy/data
+        networks:
+          internal:
+            ipv4_address: 10.0.2.46
+        command:
+          - run
+          - /etc/alloy/config.alloy
+          - --storage.path=/var/lib/alloy/data
+          - --server.http.listen-addr=0.0.0.0:12345
+
+    grafana-loki:
+        container_name: grafana-loki
+        image: grafana/loki:latest
+        restart: always
+        stdin_open: true
+        tty: true
+        mem_limit: "1G"
+        volumes:
+          - ./loki/config/loki-config.yaml:/mnt/config/loki-config.yaml
+          - ./loki/data:/loki
+        networks:
+          internal:
+            ipv4_address: 10.0.2.47
+        command: -config.file=/mnt/config/loki-config.yaml 
+
+
+networks:
+    nat:
+        external:
+            name: nat
+    internal:
+        external:
+            name: internal.60

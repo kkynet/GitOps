@@ -1,0 +1,34 @@
+version: "3"
+services: 
+
+    wireguard:
+        container_name: wireguard
+        image: linuxserver/wireguard:latest
+        restart: always
+        stdin_open: true
+        tty: true
+        cap_add:
+            - NET_ADMIN
+            - SYS_MODULE
+        env_file: 
+            - ./.env-sample
+        volumes:
+         - ./config:/config
+        ports:
+          - 51820:51820/udp
+        sysctls:
+          - net.ipv4.conf.all.src_valid_mark=1
+        networks:
+          nat:
+            ipv4_address: 10.0.5.3
+          internal:
+            ipv4_address: 10.0.2.18
+
+
+networks: 
+    internal:
+        external:
+            name: internal.ipvlanl3_60
+    nat:
+        external:
+            name: nat

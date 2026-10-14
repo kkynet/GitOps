@@ -1,0 +1,42 @@
+version: "3"
+services: 
+
+      prometheus-server:
+        container_name: prometheus-server
+        image: prom/prometheus
+        restart: always
+        stdin_open: true
+        tty: true
+        user: root
+        volumes:
+          - ./config/prometheus/:/etc/prometheus/
+          - ./tsdb-data/data:/prometheus/data
+        command: --storage.tsdb.retention.time=1y --config.file=/etc/prometheus/prometheus.yml
+        networks:
+          nat:
+            ipv4_address: 10.0.5.7
+          internal:
+            ipv4_address: 10.0.2.12
+
+      prometheus-blackbox:
+         container_name: prometheus-blackbox
+         image: prom/blackbox-exporter
+         restart: always
+         stdin_open: true
+         tty: true
+         volumes:
+           - ./blackbox/blackbox_exporter/:/etc/blackbox_exporter/
+         networks:
+           nat:
+             ipv4_address: 10.0.5.7
+           internal:
+             ipv4_address: 10.0.2.13
+
+networks: 
+    nat:
+        external: 
+            name: nat
+    internal:
+        external:
+            name: internal.ipvlanl3_60
+

@@ -7,7 +7,6 @@ services:
         restart: always
         stdin_open: true
         tty: true
-        user: root
         volumes:
           - ./config/prometheus/:/etc/prometheus/
           - ./tsdb-data/data:/prometheus/data

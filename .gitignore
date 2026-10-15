@@ -60,5 +60,5 @@ nextcloud_adm_user
 #Vikunja
 vikunja-user
 vikunja-pass
-vikunja/agent/
-vikunja/bridge/
+applications/vikunja/agent
+applications/vikunja/bridge

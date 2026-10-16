@@ -3,14 +3,14 @@ services:
 
     powerdns-mysql:
         container_name: powerdns-mysql
-        image: bitnami/mariadb-galera:12.0
+        image: bitnamilegacy/mariadb-galera:12.0
         restart: always
         stdin_open: true
         tty: true
         mem_limit: "2G"
         volumes:
-          - powerdns-mysql:/bitnami/mariadb
-          - powerdns-mysql:/opt/bitnami
+          - ./powerdns-mysql:/bitnami/mariadb
+          - ./powerdns-mysql:/opt/bitnami
         env_file:
           - ./.env-sample
         secrets:
@@ -55,8 +55,8 @@ services:
         env_file:
           - ./.env-powerdnsadmin-mysql-sample
         volumes:
-          - powerdnsadmin-mysql:/bitnami/mariadb
-          - powerdnsadmin-mysql:/opt/bitnami
+          - ./powerdnsadmin-mysql:/bitnami/mariadb
+          - ./powerdnsadmin-mysql:/opt/bitnami
         secrets:
           - mariadb-root-powerdnsadmin-sample
           - powerdnsadmin-user-sample

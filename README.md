@@ -8,6 +8,42 @@ Repositori ini berfokus pada layanan **hosting email**.
 
 ---
 
+## Daftar Layanan
+
+- [applications](https://github.com/kkynet/GitOps/tree/main/applications)
+  - [glpi](https://github.com/kkynet/GitOps/tree/main/applications/glpi)
+  - [nextcloud](https://github.com/kkynet/GitOps/tree/main/applications/nextcloud)
+  - [transmission](https://github.com/kkynet/GitOps/tree/main/applications/transmission)
+  - [vikunja](https://github.com/kkynet/GitOps/tree/main/applications/vikunja)
+- [crowdsec](https://github.com/kkynet/GitOps/tree/main/crowdsec)
+- [discourse](https://github.com/kkynet/GitOps/tree/main/discourse)
+- [fossbilling](https://github.com/kkynet/GitOps/tree/main/fossbilling)
+- [grafana](https://github.com/kkynet/GitOps/tree/main/grafana)
+- [mailserver](https://github.com/kkynet/GitOps/tree/main/mailserver)
+  - [dovecot](https://github.com/kkynet/GitOps/tree/main/mailserver/dovecot)
+  - [mailman3](https://github.com/kkynet/GitOps/tree/main/mailserver/mailman3)
+  - [postfix](https://github.com/kkynet/GitOps/tree/main/mailserver/postfix)
+  - [redis](https://github.com/kkynet/GitOps/tree/main/mailserver/redis)
+  - [roundcube](https://github.com/kkynet/GitOps/tree/main/mailserver/roundcube)
+  - [rspamd](https://github.com/kkynet/GitOps/tree/main/mailserver/rspamd)
+  - [unbound](https://github.com/kkynet/GitOps/tree/main/mailserver/unbound)
+- [mariadb-galera](https://github.com/kkynet/GitOps/tree/main/mariadb-galera)
+- [monitoring](https://github.com/kkynet/GitOps/tree/main/monitoring)
+  - [prometheus](https://github.com/kkynet/GitOps/tree/main/monitoring/prometheus)
+  - [smokeping](https://github.com/kkynet/GitOps/tree/main/monitoring/smokeping)
+  - [zabbix](https://github.com/kkynet/GitOps/tree/main/monitoring/zabbix)
+- [networking](https://github.com/kkynet/GitOps/tree/main/networking)
+  - [rpz-kominfo-ubuntu](https://github.com/kkynet/GitOps/tree/main/networking/rpz-kominfo-ubuntu)
+  - [unifi](https://github.com/kkynet/GitOps/tree/main/networking/unifi)
+  - [wireguard](https://github.com/kkynet/GitOps/tree/main/networking/wireguard)
+- [powerdns](https://github.com/kkynet/GitOps/tree/main/powerdns)
+- [pterodactyl](https://github.com/kkynet/GitOps/tree/main/pterodactyl)
+- [pterodactyl-wings](https://github.com/kkynet/GitOps/tree/main/pterodactyl-wings)
+- [traefik](https://github.com/kkynet/GitOps/tree/main/traefik)
+
+
+---
+
 ## Step-by-Step
 
 Sebelum masuk ke langkah pertama, pastikan network sudah terbuat, atau gunakan alokasi IP otomatis dari Docker network. Repository ini menggunakan IP statik.
@@ -97,7 +133,6 @@ docker network inspect internal.60
 
 Pertama yang di-setup adalah DNS. Direkomendasikan menggunakan **PowerDNS** karena sudah mendukung backend database SQL.
 
-👉 **[powerdns/](https://github.com/kkynet/GitOps/tree/main/powerdns)**
+**[powerdns/](https://github.com/kkynet/GitOps/tree/main/powerdns)**
 
-
-README.md WIP
+---

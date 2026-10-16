@@ -13,7 +13,7 @@ services:
           - /run/docker.sock:/run/docker.sock:ro
           - ./traefik.yaml:/etc/traefik/traefik.yaml:ro
           - ./acme/acme.json:/acme.json
-          - ./acme/acme-coolify.json:/acme-coolify.json
+#          - ./acme/acme-coolify.json:/acme-coolify.json
         environment:
           RFC2136_NAMESERVER: 10.0.5.26:53
           RFC2136_TSIG_ALGORITHM: hmac-sha512
@@ -82,6 +82,3 @@ networks:
     internal:
       external:
             name: internal.60
-    paas:
-      external:
-            name: coolify

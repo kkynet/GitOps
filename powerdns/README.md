@@ -86,4 +86,4 @@ Setelah konfigurasi selesai, jalankan container:
 docker-compose up -d
 ```
 
-Setelah semua container **healthy**, lanjutkan ke langkah berikutnya: **[traefik/](./traefik/)**.
+Setelah semua container **healthy**, lanjutkan ke langkah berikutnya: **[traefik/](../traefik/)**.

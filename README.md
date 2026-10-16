@@ -129,10 +129,24 @@ docker network inspect internal.60
 
 ---
 
-## 4. DNS & Networking
+## 1. DNS (Powerdns)
 
 Pertama yang di-setup adalah DNS. Direkomendasikan menggunakan **PowerDNS** karena sudah mendukung backend database SQL.
 
 **[powerdns/](https://github.com/kkynet/GitOps/tree/main/powerdns)**
+
+---
+
+## 2. Reverse Proxy & SSL (Traefik)
+
+Setelah DNS selesai, langkah berikutnya adalah **Traefik**. Traefik berfungsi sebagai reverse proxy terpusat dan men-generate SSL menggunakan **DNS Challenge** (Let's Encrypt).
+
+Sertifikat dari `acme.json` dikonversi otomatis menjadi `.crt` dan `.key` oleh container `traefik-certs-dumper`, sehingga bisa dipakai oleh service seperti mailserver.
+
+- **Provider:** `rfc2136`, karena DNS Authoritative di-setup sendiri (bukan Cloudflare)
+- **Output sertifikat:** `.crt` dan `.key` untuk service non-Traefik
+- **Tips:** gunakan server **staging** Let's Encrypt dulu untuk menghindari rate limit
+
+**[traefik/](https://github.com/kkynet/GitOps/tree/main/traefik)**
 
 ---

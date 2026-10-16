@@ -1,4 +1,4 @@
-# POWERDNS dan POWERDNS ADMIN
+# POWERDNS & POWERDNS ADMIN
 
 Pertama yang di setup adalah DNS. Di rekomendasikan menggunakan **PowerDNS** karena sudah mendukung backend database SQL
 
@@ -86,4 +86,4 @@ Setelah konfigurasi selesai, jalankan container:
 docker-compose up -d
 ```
 
-Setelah semua container **healthy**, lanjutkan ke langkah berikutnya: **[traefik/](https://github.com/kkynet/GitOps/tree/main/traefik)**.
+Setelah semua container **healthy**, lanjutkan ke langkah berikutnya: **[traefik/](https://github.com/kkynet/GitOps/tree/main/traefik)**

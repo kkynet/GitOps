@@ -37,7 +37,7 @@ Repository ini menggunakan provider **rfc2136** karena DNS Authoritative di-setu
 ## Struktur File
 
 ```text
-root@docker4:/home/administrator/docker/tamvan/docker-compose/traefik# tree -a
+root@host:/docker-compose/traefik# tree -a
 .
 ├── .dockerignore
 ├── .env

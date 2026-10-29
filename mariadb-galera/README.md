@@ -19,6 +19,10 @@ Container ini diperuntukkan untuk aplikasi yang membutuhkan database. Untuk case
   - [2. Table](#2-table)
     - [Deskripsi Tabel `mail_domain`](#deskripsi-tabel-mail_domain)
     - [Deskripsi Tabel `mail_user`](#deskripsi-tabel-mail_user)
+- [Setup Domain dan Mailbox](#setup-domain-dan-mailbox)
+  - [1. Domain](#1-domain)
+  - [2. Mailbox](#2-mailbox)
+  - [3. Verifikasi dari Container Dovecot](#3-verifikasi-dari-container-dovecot)
 
 ---
 
@@ -112,3 +116,99 @@ Nama database: `mx`
 | `maildir` | Path relatif mailbox dalam format Maildir, contoh: `domain.com/user1/` — digabung dengan `/var/vmail/` di `user_query` untuk membentuk home & mail path |
 | `quota` | Quota storage dalam MB. `0` = unlimited |
 | `active` | Status aktif user (`y` / `n`), hanya user dengan `active='y'` yang bisa login/menerima mail |
+
+---
+
+## Setup Domain dan Mailbox
+
+### 1. Domain
+
+Tambahkan domain terlebih dahulu ke database `mx`:
+
+```sql
+INSERT INTO mail_domain (domain, active) VALUES ('domain.com', 'y');
+```
+
+### 2. Mailbox
+
+Pembuatan email membutuhkan password hash dengan prefix scheme (`{SHA512-CRYPT}$6$...`). Cara paling aman generate-nya langsung dari container Dovecot:
+
+```bash
+doveadm pw -s SHA512-CRYPT
+```
+
+Nanti diminta input password dua kali (konfirmasi). Output yang diharapkan seperti ini:
+
+```text
+{SHA512-CRYPT}$6$i/TPECfQ61...aPKG/
+```
+
+Copy hash tersebut dan input-kan di field `password` saat insert ke database `mx` (dijalankan dari container `mariadb-galera`):
+
+```sql
+INSERT INTO mail_user (domain_id, email, login, password, name, maildir, quota, active)
+VALUES (
+    (SELECT id FROM mail_domain WHERE domain = 'domain.com'),
+    'newuser@domain.com',
+    'newuser@domain.com',
+    '{SHA512-CRYPT}$6$<generate menggunakan doveadm pw -s SHA512-CRYPT>',
+    'Nama User',
+    'domain.com/newuser/',
+    1000,
+    'y'
+);
+```
+
+Catatan field:
+
+- `maildir` ikuti pola yang sudah ada: `domain.com/newuser/` (dengan trailing slash) — ini digabung dengan `/var/vmail/` di `user_query` Dovecot.
+- `quota` dalam MB, `0` = unlimited.
+
+### 3. Verifikasi dari Container Dovecot
+
+Cek apakah Dovecot bisa resolve user-nya lewat `userdb`, dengan command:
+
+```bash
+doveadm user newuser@domain.com
+```
+
+Output yang diharapkan:
+
+```text
+root@dovecot:/# doveadm user info@domain.com
+field   value
+uid     5000
+gid     5000
+home    /var/vmail/domain.com/info/
+mail    maildir:/var/vmail/domain.com/info/
+quota_rule      *:storage=0M
+quota_rule2     *:messages=0
+```
+
+Lalu test autentikasi lewat `passdb`:
+
+```bash
+doveadm auth test newuser@domain.com
+```
+
+Perintah ini akan menampilkan prompt password.
+
+Jika **gagal**, akan muncul seperti ini:
+
+```text
+root@dovecot:/# doveadm auth test newuser@domain.com
+Password:
+passdb: newuser@domain.com auth failed
+extra fields:
+  user=newuser@domain.com
+```
+
+Jika **sukses**, akan muncul seperti ini:
+
+```text
+root@dovecot:/# doveadm auth test newuser@domain.com
+Password:
+passdb: newuser@domain.com auth succeeded
+extra fields:
+  user=newuser@domain.com
+```

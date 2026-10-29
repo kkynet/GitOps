@@ -101,3 +101,68 @@ Environment yang didukung sebagai berikut:
 ```bash
 docker compose up -d
 ```
+
+### 6. Pembuatan Mail dan Mailbox baru
+
+Pembuatan email membutuhkan password hash dengan prefix scheme (`{SHA512-CRYPT}$6$...`). Cara paling aman generate-nya langsung dari container Dovecot:
+
+```bash
+doveadm pw -s SHA512-CRYPT
+```
+
+Nanti diminta input password dua kali (konfirmasi). Output yang diharapkan seperti ini:
+
+```text
+{SHA512-CRYPT}$6$i/TPECfQ61...aPKG/
+```
+
+Copy hash tersebut dan input-kan di field `password` saat insert ke database `mx` (dijalankan dari container `mariadb-galera`)
+
+### 7. Verifikasi dari Container Dovecot
+
+Cek apakah Dovecot bisa resolve user-nya lewat `userdb`, dengan command:
+
+```bash
+doveadm user newuser@domain.com
+```
+
+Output yang diharapkan:
+
+```text
+root@dovecot:/# doveadm user info@domain.com
+field   value
+uid     5000
+gid     5000
+home    /var/vmail/domain.com/info/
+mail    maildir:/var/vmail/domain.com/info/
+quota_rule      *:storage=0M
+quota_rule2     *:messages=0
+```
+
+Lalu test autentikasi lewat `passdb`:
+
+```bash
+doveadm auth test newuser@domain.com
+```
+
+Perintah ini akan menampilkan prompt password.
+
+Jika **gagal**, akan muncul seperti ini:
+
+```text
+root@dovecot:/# doveadm auth test newuser@domain.com
+Password:
+passdb: newuser@domain.com auth failed
+extra fields:
+  user=newuser@domain.com
+```
+
+Jika **sukses**, akan muncul seperti ini:
+
+```text
+root@dovecot:/# doveadm auth test newuser@domain.com
+Password:
+passdb: newuser@domain.com auth succeeded
+extra fields:
+  user=newuser@domain.com
+```

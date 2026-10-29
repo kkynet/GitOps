@@ -161,7 +161,7 @@ VALUES (
 
 Catatan field:
 
-- `maildir` ikuti pola yang sudah ada: `domain.com/newuser/` (dengan trailing slash) — ini digabung dengan `/var/vmail/` di `user_query` Dovecot.
+- `maildir`: `domain.com/newuser/` ini digabung dengan `/var/vmail/` di `user_query` Dovecot.
 - `quota` dalam MB, `0` = unlimited.
 
 ### 3. Verifikasi dari Container Dovecot

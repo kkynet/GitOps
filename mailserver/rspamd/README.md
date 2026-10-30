@@ -37,6 +37,8 @@ root@docker4:/mailserver/rspamd# tree -a
 
 Sebelum setup Rspamd, service ini bergantung pada [unbound/](https://github.com/kkynet/GitOps/tree/main/mailserver/unbound) dan [redis/](https://github.com/kkynet/GitOps/tree/main/mailserver/redis), karena unbound digunakan untuk resolve ke root hint agar menghindari rate limit, dan redis untuk cache data rspamd
 
+> Pastikan container mailserver-unbound dan mailserver-redis sudah jalan sebelum setup rspamd
+
 
 ### 2. Build Image
 
